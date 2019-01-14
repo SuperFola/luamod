@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.2)
 project(luamod)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 add_subdirectory(vendor/luajit)
+set_target_properties(buildvm liblua luajit minilua wluajit PROPERTIES FOLDER "vendor/luajit")
 
 set(cdir ${CMAKE_CURRENT_LIST_DIR})
 file(GLOB source ${cdir}/src/*.cpp)
@@ -22,5 +25,6 @@ add_custom_target(scripts_target
                    ${cdir}/scripts ${CMAKE_CURRENT_BINARY_DIR}/scripts
 				   SOURCES ${scripts}
 )
+source_group("Scripts" FILES ${scripts})
 
 add_dependencies(${PROJECT_NAME} scripts_target)
