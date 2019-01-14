@@ -20,3 +20,7 @@ void Stack::Push(const char* c) {
 void Stack::Push(const std::string& str) {
 	lua_pushstring(m_l, str.c_str());
 }
+
+void Stack::Push(long l) {
+	lua_pushinteger(m_l, static_cast<lua_Integer>(l));
+}

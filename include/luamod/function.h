@@ -16,6 +16,14 @@ namespace lm {
 
 		int LuaFunctorDispatch(lua_State* state);
 
+		template <typename T>
+		struct LambdaTraits : public LambdaTraits<decltype(&T::operator())> {};
+
+		template <typename T, typename RetType, typename... Args>
+		struct LambdaTraits<RetType(T::*)(Args...) const> {
+			typedef std::function<RetType(Args...)> Functor;
+		};
+
 		template <typename RetType, typename... Args>
 		class Function : public BaseFunction {
 		private:

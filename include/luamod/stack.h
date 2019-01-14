@@ -17,6 +17,8 @@ namespace lm {
 		void Push(const char* c);
 		void Push(const std::string& str);
 
+		void Push(long l);
+
 		template <typename T, typename... Args>
 		void Push(T t, const Args&... args) {
 			Push(t);
@@ -44,6 +46,17 @@ namespace lm {
 		bool Read<bool>(int index) {
 			bool b = lua_toboolean(m_l, index);
 			return b;
+		}
+
+		template <>
+		const char* Read(int index) {
+			return lua_tostring(m_l, index);
+		}
+
+		template <>
+		std::string Read(int index) {
+			const char* c = lua_tostring(m_l, index);
+			return std::string(c);
 		}
 
 		template <typename T>

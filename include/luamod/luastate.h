@@ -29,6 +29,16 @@ namespace lm {
 			new detail::Function<RetType, Args...>(m_state, funcName, func);
 		}
 
+		template <typename RetType, typename... Args>
+		void Register(const char* funcName, RetType(*func)(Args...)) {
+			new detail::Function<RetType, Args...>(m_state, funcName, std::function<RetType(Args...)>(func));
+		}
+
+		template <typename LambdaType>
+		void Register(const char* funcName, LambdaType lambda) {
+			Register(funcName, (typename detail::LambdaTraits<LambdaType>::Functor)(lambda));
+		}
+
 		template <typename T>
 		T GetGlobal(const char* globalName) {
 			lua_getglobal(m_state, globalName);
