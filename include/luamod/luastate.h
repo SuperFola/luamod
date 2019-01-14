@@ -19,26 +19,62 @@ namespace lm {
 		LuaState();
 		~LuaState();
 
+		/**
+		 * @brief Load and then run a Lua script.
+		 * @param filepath The filepath to the Lua script to run.
+		 */
 		void RunFile(const char* filepath);
 		
+		/**
+		 * @brief Get the Lua stack abstraction that belongs to this state. DO NOT delete this pointer.
+		 * @return A pointer to the Lua stack for this state.
+		 */
 		inline Stack* GetStack() { return m_stack.get(); }
+
+		/**
+		 * @brief Get the internal lua_State* object.
+		 * @return The internal lua_State* used by this state.
+		 */
 		inline lua_State* GetLuaState() { return m_state; }
 
+
+		/**
+		 * @brief Register a std::function<...> object with this Lua state.
+		 * @param funcName The name of the function as it will appear in Lua. 
+		 * @param func The function object to bind.
+		 */
 		template <typename RetType, typename... Args>
 		void Register(const char* funcName, std::function<RetType(Args...)> func) {
 			new detail::Function<RetType, Args...>(m_state, funcName, func);
 		}
 
+
+		/**
+		 * @brief Register a function pointer with this Lua state.
+		 * @param funcName The name of the function as it will appear in Lua.
+		 * @param func The function pointer to bind.
+		 */
 		template <typename RetType, typename... Args>
 		void Register(const char* funcName, RetType(*func)(Args...)) {
 			new detail::Function<RetType, Args...>(m_state, funcName, std::function<RetType(Args...)>(func));
 		}
 
+		/**
+		 * @brief Register a lambda function with this Lua state.
+		 * @param funcName The name of the function as it will appear in Lua.
+		 * @param lambda The lambda to bind.
+		 */
 		template <typename LambdaType>
 		void Register(const char* funcName, LambdaType lambda) {
 			Register(funcName, (typename detail::LambdaTraits<LambdaType>::Functor)(lambda));
 		}
 
+
+		/**
+		 * @brief Get the value of a global variable (that has specified type T) from inside Lua.
+		 * @param globalName The name of the Lua global variable.
+		 * @return The value of the lua global variable.
+		 */
 		template <typename T>
 		T GetGlobal(const char* globalName) {
 			lua_getglobal(m_state, globalName);
@@ -46,12 +82,25 @@ namespace lm {
 			return global;
 		}
 
+
+		/**
+		 * @brief Set the value of a global variable (that has specified type T) inside Lua.
+		 * @param globalName The name of the Lua global variable.
+		 * @param value The value to set the Lua global to.
+		 */
 		template <typename T>
 		void SetGlobal(const char* globalName, const T& value) {
 			m_stack->Push(value);
 			lua_setglobal(m_state, globalName);
 		}
 
+
+		/**
+		 * @brief Call a Lua function from C++.
+		 * @param funcName The name of the Lua function to call.
+		 * @param args The arguments to pass to the Lua function.
+		 * @return The value returned by the called Lua function.
+		 */
 		template <typename... RetType, typename... Args>
 		typename detail::ReturnProxy<sizeof...(RetType), RetType...>::type Call(const char* funcName, const Args&... args) {
 			lua_getglobal(m_state, funcName);
