@@ -1,11 +1,11 @@
-#include <iostream>
+#include <Windows.h>
 
 #include <luamod/luastate.h>
-#include <string>
-#include <windows.h>
 
-void ShowMessageBox(const char* title, const char* text, int buttons) {
-	MessageBox(0, text, title, buttons);
+namespace test_lib {
+	void ShowMessageBox(const char* title, const char* text, int buttons) {
+		::MessageBox(0, text, title, buttons);
+	}
 }
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
 	lua.SetGlobal("MessageBoxButtons_OK", MB_OK);
 	lua.SetGlobal("MessageBoxButtons_OKCancel", MB_OKCANCEL);
 
-	lua.Register("ShowMessageBox", &ShowMessageBox);
+	lua.Register("ShowMessageBox", &test_lib::ShowMessageBox);
 	lua.Register("GetRandomNumber", []() {
 		// https://xkcd.com/221/
 		return 4; // chosen by fair dice roll.
