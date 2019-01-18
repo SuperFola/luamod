@@ -8,32 +8,20 @@ namespace lm {
 
 	class Table {
 	public:
-		Table(lua_State* state) { m_state = state; }
+		Table(lua_State* state);
 		
-		void LoadFromStackTop() {
-			m_ref = LuaRefProxy(m_state);
-			m_ref.CreateFromStackTop();
-		}
-
+		void FromStackTop();
+		
 		template <typename T>
 		T GetProperty(const char* propertyName) {
-			Stack localStack(m_state);
-			m_ref.PushOntoStack();
+			m_ref.Push();
 			lua_getfield(m_state, -1, propertyName);
+			
+			Stack localStack(m_state);
 			T prop = localStack.Pop<T>();
+			
 			lua_pop(m_state, 1);
 			return prop;
-		}
-
-		template <typename T>
-		T operator[](const char* propertyName) {
-			return GetProperty(propertyName);
-		}
-		
-		// #todo (need a cleaner way of managing references)
-		void Free() {
-			assert(m_ref.IsInUse());
-			m_ref.Free();
 		}
 
 	private:

@@ -33,15 +33,9 @@ int main() {
 	printf("\ta=\"%s\",\n", tablePropertyA.c_str());
 	printf("\tb=\"%s\",\n", tablePropertyB.c_str());
 	printf("\tc={\n");
-	printf("\t\tc=%i\n", tablePropertyCPropertyD);
+	printf("\t\td=%i\n", tablePropertyCPropertyD);
 	printf("\t}\n");
 	printf("}\n");
 	
-	// #todo (bwilks). See lm::Table destructor. Shouldn't need to explictly free here (it's to free the internal lua ref, and that's
-	// an implementation detail that should be hidden from the user.
-	tablePropertyC.Free();
-	resultTable.Free();
-
-	system("pause");
 	return 0;
 }

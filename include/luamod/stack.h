@@ -71,7 +71,7 @@ namespace lm {
 		template <>
 		Table Pop() {
 			Table table(m_l);
-			table.LoadFromStackTop();
+			table.FromStackTop();
 			return table;
 		}
 	};
