@@ -1,6 +1,7 @@
 #include <Windows.h>
 
 #include <luamod/luastate.h>
+#include <luamod/table.h>
 
 namespace test_lib {
 	void ShowMessageBox(const char* title, const char* text, int buttons) {
@@ -21,8 +22,26 @@ int main() {
 		          // guaranteed to be random.
 	});
 
-	lua.RunFile("scripts/index.lua");
+	lm::Table resultTable = lua.RunFile<lm::Table>("scripts/index.lua");
+	std::string tablePropertyA = resultTable.GetProperty<std::string>("a");
+	std::string tablePropertyB = resultTable.GetProperty<std::string>("b");
+
+	lm::Table tablePropertyC = resultTable.GetProperty<lm::Table>("c");
+	int tablePropertyCPropertyD = tablePropertyC.GetProperty<int>("d");
+
+	printf("{\n");
+	printf("\ta=\"%s\",\n", tablePropertyA.c_str());
+	printf("\tb=\"%s\",\n", tablePropertyB.c_str());
+	printf("\tc={\n");
+	printf("\t\tc=%i\n", tablePropertyCPropertyD);
+	printf("\t}\n");
+	printf("}\n");
 	
+	// #todo (bwilks). See lm::Table destructor. Shouldn't need to explictly free here (it's to free the internal lua ref, and that's
+	// an implementation detail that should be hidden from the user.
+	tablePropertyC.Free();
+	resultTable.Free();
+
 	system("pause");
 	return 0;
 }

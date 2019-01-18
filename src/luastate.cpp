@@ -12,8 +12,3 @@ LuaState::LuaState() {
 LuaState::~LuaState() {
 	lua_close(m_state);
 }
-
-void LuaState::RunFile(const char* filepath) {
-	luaL_loadfile(m_state, filepath);
-	lua_pcall(m_state, 0, LUA_MULTRET, 0);
-}

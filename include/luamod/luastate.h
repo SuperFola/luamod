@@ -23,7 +23,13 @@ namespace lm {
 		 * @brief Load and then run a Lua script.
 		 * @param filepath The filepath to the Lua script to run.
 		 */
-		void RunFile(const char* filepath);
+		template <typename... ReturnType>
+		typename detail::ReturnProxy<sizeof...(ReturnType), ReturnType...>::type RunFile(const char* filepath) {
+			luaL_loadfile(m_state, filepath);
+			lua_pcall(m_state, 0, LUA_MULTRET, 0);
+
+			return detail::ReturnProxy<sizeof...(ReturnType), ReturnType...>::Pop(m_stack);
+		}
 		
 		/**
 		 * @brief Get the Lua stack abstraction that belongs to this state. DO NOT delete this pointer.

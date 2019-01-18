@@ -11,3 +11,11 @@ local msgBoxTitle = "Message Box Title!"
 local msgBoxContent = "Hey, this is the content! Have fun :D";
 
 ShowMessageBox(msgBoxTitle, msgBoxContent, MessageBoxButtons_OK)
+
+return {
+	a = "This Is the Value for 'a' :D",
+	b = "Hello, C++!",
+	c = {
+		d = 5123
+	}
+}

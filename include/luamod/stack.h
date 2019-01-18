@@ -1,9 +1,11 @@
 #pragma once
 
 #include <luamod/lua.h>
+#include <luamod/table.h>
 
 #include <string>
 #include <vector>
+
 namespace lm {
 	class Stack {
 	private:
@@ -64,6 +66,13 @@ namespace lm {
 			T top = Read<T>(-1);
 			lua_pop(m_l, 1);
 			return top;
+		}
+
+		template <>
+		Table Pop() {
+			Table table(m_l);
+			table.LoadFromStackTop();
+			return table;
 		}
 	};
 }
