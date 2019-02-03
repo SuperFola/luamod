@@ -2,6 +2,7 @@
 
 #include <luamod/luastate.h>
 #include <luamod/table.h>
+#include <luamod/function.h>
 
 namespace test_lib {
 	void ShowMessageBox(const char* title, const char* text, int buttons) {
@@ -36,6 +37,7 @@ int main() {
 	printf("\t\td=%i\n", tablePropertyCPropertyD);
 	printf("\t}\n");
 	printf("}\n");
-	
+
+
 	return 0;
 }

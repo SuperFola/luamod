@@ -9,15 +9,23 @@ namespace lm {
 	class Table {
 	public:
 		Table(lua_State* state);
-		
+		Table() {}
+
 		void FromStackTop();
 		
 		template <typename T>
-		T GetProperty(const char* propertyName) {
+		T GetProperty(const char* propertyName, T defaultValue = T()) {
 			m_ref.Push();
 			lua_getfield(m_state, -1, propertyName);
 			
 			Stack localStack(m_state);
+
+			if (localStack.TopIsNil())
+			{
+				lua_pop(m_state, 2);
+				return defaultValue;
+			}
+
 			T prop = localStack.Pop<T>();
 			
 			lua_pop(m_state, 1);

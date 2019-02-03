@@ -17,5 +17,8 @@ return {
 	b = "Hello, C++!",
 	c = {
 		d = 5123
-	}
+	},
+	func = function ()
+			  println("Hello World!")
+		   end
 }

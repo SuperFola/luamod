@@ -18,12 +18,10 @@ namespace lm {
 		 */
 		inline RefID GetRef() const { return *m_refindex; }
 
-
 		/**
 		 * @brief Make this act as a reference to the item on top of the Lua stack (at the time of calling).
 		 */
 		void CreateFromStackTop();
-		
 		
 		/**
 		 * @brief Push the value of this reference to the Lua stack.

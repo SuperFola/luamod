@@ -7,6 +7,10 @@
 #include <vector>
 
 namespace lm {
+	class Stack;
+
+	class LuaFunction;
+
 	class Stack {
 	private:
 		lua_State * m_l;
@@ -73,6 +77,10 @@ namespace lm {
 			Table table(m_l);
 			table.FromStackTop();
 			return table;
+		}
+
+		bool TopIsNil() {
+			return lua_isnil(m_l, -1);
 		}
 	};
 }

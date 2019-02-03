@@ -14,8 +14,8 @@ namespace lm {
 		struct ReturnProxy<1, T1> {
 			typedef T1 type;
 
-			static T1 Pop(const std::unique_ptr<Stack>& stack) {
-				return stack->Pop<T1>();
+			static T1 Pop(Stack& stack) {
+				return stack.Pop<T1>();
 			}
 		};
 
@@ -23,7 +23,7 @@ namespace lm {
 		struct ReturnProxy<0, Ts...> {
 			typedef void type;
 
-			static void Pop(const std::unique_ptr<Stack>& stack) {}
+			static void Pop(Stack& stack) {}
 		};
 	}
 }

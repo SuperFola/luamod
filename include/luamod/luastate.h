@@ -3,7 +3,7 @@
 #include <luamod/lua.h>
 #include <luamod/stack.h>
 #include <luamod/returnproxy.h>
-#include <luamod/function.h>
+#include <luamod/luastate.h>
 
 #include <memory>
 #include <functional>
@@ -28,7 +28,7 @@ namespace lm {
 			luaL_loadfile(m_state, filepath);
 			lua_pcall(m_state, 0, LUA_MULTRET, 0);
 
-			return detail::ReturnProxy<sizeof...(ReturnType), ReturnType...>::Pop(m_stack);
+			return detail::ReturnProxy<sizeof...(ReturnType), ReturnType...>::Pop(*m_stack);
 		}
 		
 		/**
@@ -51,7 +51,7 @@ namespace lm {
 		 */
 		template <typename RetType, typename... Args>
 		void Register(const char* funcName, std::function<RetType(Args...)> func) {
-			new detail::Function<RetType, Args...>(m_state, funcName, func);
+			new detail::CFunctionProxy<RetType, Args...>(m_state, funcName, func);
 		}
 
 
@@ -62,7 +62,7 @@ namespace lm {
 		 */
 		template <typename RetType, typename... Args>
 		void Register(const char* funcName, RetType(*func)(Args...)) {
-			new detail::Function<RetType, Args...>(m_state, funcName, std::function<RetType(Args...)>(func));
+			new detail::CFunctionProxy<RetType, Args...>(m_state, funcName, std::function<RetType(Args...)>(func));
 		}
 
 		/**
@@ -113,7 +113,7 @@ namespace lm {
 			m_stack->Push(args...);
 			lua_pcall(m_state, sizeof...(args), sizeof...(RetType), 0);
 
-			return detail::ReturnProxy<sizeof...(RetType), RetType...>::Pop(m_stack);
+			return detail::ReturnProxy<sizeof...(RetType), RetType...>::Pop(*m_stack);
 		}
 	};
 }
