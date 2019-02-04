@@ -56,7 +56,7 @@ namespace lm {
 
 			virtual int Call(lua_State* state) {
 				Stack closureStack(state);
-				
+
 				std::tuple<Args...> args = std::make_tuple(closureStack.Pop<Args>()...);
 				RetType t = ArgumentsProxy::Lift(m_func, args);
 
@@ -88,25 +88,4 @@ namespace lm {
 		};
 
 	}
-	
-	class LuaFunction {
-	public:
-		LuaFunction(lua_State* state) : m_state(state) {}
-		LuaFunction() {}
-
-		void FromStackTop() {
-			m_ref = LuaRefProxy(m_state);
-			m_ref.CreateFromStackTop();
-		}
-
-		void operator()() {
-			m_ref.Push();
-			lua_pcall(m_state, 0, LUA_MULTRET, 0);
-			lua_pop(m_state, 1);
-		}
-
-	private:
-		LuaRefProxy m_ref;
-		lua_State* m_state;
-	};
 }

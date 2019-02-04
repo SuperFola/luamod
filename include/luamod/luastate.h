@@ -3,7 +3,7 @@
 #include <luamod/lua.h>
 #include <luamod/stack.h>
 #include <luamod/returnproxy.h>
-#include <luamod/luastate.h>
+#include <luamod/function.h>
 
 #include <memory>
 #include <functional>
