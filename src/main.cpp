@@ -10,7 +10,7 @@ namespace test_lib {
 	}
 }
 
-int main() {
+int main_STUB() {
 	lm::LuaState lua;
 	
 	lua.SetGlobal("MessageBoxButtons_OK", MB_OK);
