@@ -5,22 +5,24 @@ using namespace lm;
 Stack::Stack(lua_State* state)
 	: m_l(state) {}
 
-void Stack::Push(int n) {
-	lua_pushinteger(m_l, n);
+void detail::Push(lua_State* l, int n) {
+	lua_pushinteger(l, n);
 }
 
-void Stack::Push(bool b) {
-	lua_pushboolean(m_l, b);
+void detail::Push(lua_State* l, bool b) {
+	lua_pushboolean(l, b);
 }
 
-void Stack::Push(const char* c) {
-	lua_pushstring(m_l, c);
+void detail::Push(lua_State* l, const char* c) {
+	lua_pushstring(l, c);
 }
 
-void Stack::Push(const std::string& str) {
-	lua_pushstring(m_l, str.c_str());
+void detail::Push(lua_State* l, const std::string& str) {
+	lua_pushstring(l, str.c_str());
 }
 
-void Stack::Push(long l) {
-	lua_pushinteger(m_l, static_cast<lua_Integer>(l));
+void detail::Push(lua_State* l, long l2) {
+	lua_pushinteger(l, static_cast<lua_Integer>(l2));
 }
+
+void detail::Push(){}

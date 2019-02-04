@@ -7,9 +7,23 @@
 #include <vector>
 
 namespace lm {
-	class Stack;
+	namespace detail {
+		void Push(lua_State* l, int n);
+		void Push(lua_State* l, bool b);
 
-	class LuaFunction;
+		void Push(lua_State* l, const char* c);
+		void Push(lua_State* l, const std::string& str);
+
+		void Push(lua_State* l, long l2);
+
+		template <typename T, typename... Args>
+		void Push(lua_State* l, T t, const Args&... args) {
+			Push(t);
+			Push(args...);
+		}
+
+		void Push();
+	}
 
 	class Stack {
 	private:
@@ -17,24 +31,8 @@ namespace lm {
 	public:
 		Stack(lua_State* state);
 
-		void Push(int n);
-		void Push(bool b);
-		
-		void Push(const char* c);
-		void Push(const std::string& str);
-
-		void Push(long l);
-
-		template <typename T, typename... Args>
-		void Push(T t, const Args&... args) {
-			Push(t);
-			Push(args...);
-		}
-
-		void Push() {}
-
 		template <typename T>
-		T Read(int index=-1);
+		T Read(int index =- 1);
 
 		template <>
 		int Read<int>(int index) {
@@ -69,7 +67,7 @@ namespace lm {
 		template <>
 		Array Read(int index) {
 			Array array(m_l);
-			array.FromStack(index);
+			array.LoadFromStack(index);
 			array.Push();
 			return array;
 		}
@@ -77,7 +75,7 @@ namespace lm {
 		template <>
 		Table Read(int index) {
 			Table table(m_l);
-			table.FromStack(index);
+			table.LoadFromStack(index);
 			table.Push();
 			return table;
 		}
@@ -88,18 +86,9 @@ namespace lm {
 
 		template <typename T>
 		T Pop() {
-			const char* t32 = typeid(T).name();
-			const char* ttype = TypeOfTop();
-			
 			T top = Read<T>(-1);
 			lua_pop(m_l, 1);
 			return top;
-		}
-
-		const char* TypeOfTop() {
-			int t = lua_type(m_l, -1);
-			const char* t2 = lua_typename(m_l, t);
-			return t2;
 		}
 
 		bool TopIsNil() {

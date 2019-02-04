@@ -4,14 +4,23 @@
 
 using namespace lm;
 
-Table::Table(lua_State* state) 
-	: m_state(state) {
+TableBase::TableBase(lua_State* state)
+	: m_state(state){}
+
+void TableBase::Push() {
+	m_ref.Push();
 }
 
-void Table::FromStack(int index) {
+void TableBase::LoadFromStack(int index) {
 	m_ref = LuaRefProxy(m_state);
 	m_ref.CreateFromStack(index);
 }
+
+Table::Table(lua_State* state) 
+	: TableBase(state) { }
+
+Array::Array(lua_State* state)
+	: TableBase(state) { }
 
 int Array::Count() {
 	m_ref.Push();
@@ -21,9 +30,4 @@ int Array::Count() {
 
 	lua_pop(m_state, 1);
 	return count;
-}
-
-void Array::FromStack(int i) {
-	m_ref = LuaRefProxy(m_state);
-	m_ref.CreateFromStack(i);
 }

@@ -41,6 +41,33 @@ namespace lm {
 			using Arguments = VaradicPack<Args...>;
 		};
 
+		template <typename... Args>
+		struct ArgsPopper {
+			typedef std::tuple<Args...> Type;
+
+			template <typename T>
+			static std::tuple<T> DoWork(Stack& s, const int i) {
+				return std::make_tuple(s.Read<T>(i));
+			}
+
+			template <typename T1, typename T2, typename... Rest>
+			static std::tuple<T1, T2, Rest...> DoWork(Stack &s, const int i) {
+				std::tuple<T1> head = std::make_tuple(s.Read<T1>(i));
+				return std::tuple_cat(head, DoWork<T2, Rest...>(s, i + 1));
+			}
+
+			static Type Apply(Stack& s) {
+				auto ret = DoWork<Args...>(s, 1);
+				lua_pop(s.GetState(), ((int)sizeof...(Args)));
+				return ret;
+			}
+		};
+
+		template<>
+		struct ArgsPopper<> {
+			static std::tuple<> Apply(Stack& s) { return std::make_tuple<>(); }
+		};
+
 		template <typename RetType, typename... Args>
 		class CFunctionProxy : public CFunctionProxyBase {
 		private:
@@ -58,10 +85,10 @@ namespace lm {
 			virtual int Call(lua_State* state) {
 				Stack closureStack(state);
 
-				std::tuple<Args...> args = std::make_tuple(closureStack.Pop<Args>()...);
+				std::tuple<Args...> args = ArgsPopper<Args...>::Apply(closureStack);
 				RetType t = ArgumentsProxy::Lift(m_func, args);
 
-				closureStack.Push(t);
+				detail::Push(state, t);
 				return 1;
 			}
 		};
@@ -86,28 +113,6 @@ namespace lm {
 				vec.insert(vec.end(), { typeid(Types)... });
 			}
 
-			template <typename... Args>
-			struct Popper {
-				typedef std::tuple<Args...> Type;
-
-				template <typename T>
-				static std::tuple<T> DoWork(Stack& s, const int i) {
-					return std::make_tuple(s.Read<T>(i));
-				}
-
-				template <typename T1, typename T2, typename... Rest>
-				static std::tuple<T1, T2, Rest...> DoWork(Stack &s, const int i) {
-					std::tuple<T1> head = std::make_tuple(s.Read<T1>(i));
-					return std::tuple_cat(head, DoWork<T2, Rest...>(s, i+1));
-				}
-
-				static Type Apply(Stack& s) {
-					auto ret = DoWork<Args...>(s, 1);
-					lua_pop(s.GetState(), ((int)sizeof...(Args)));
-					return ret;
-				}
-			};
-
 			virtual int Call(lua_State* state) {
 				Stack closureStack(state);
 				
@@ -116,7 +121,7 @@ namespace lm {
 				std::vector<std::string> names;
 				for (auto t1 : ts)names.push_back(t1.name());
 					
-				std::tuple<Args...> args = Popper<Args...>::Apply(closureStack);//std::make_tuple(closureStack.Pop<Args>()...);
+				std::tuple<Args...> args = ArgsPopper<Args...>::Apply(closureStack);
 				ArgumentsProxy::Lift(m_func, args);
 				return 0;
 			}

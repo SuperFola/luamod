@@ -4,6 +4,8 @@
 #include <tuple>
 
 namespace lm {
+	class Stack;
+
 	namespace detail {
 		/*
 			This useful method for unpack a tuple into a functions parameter pack I got from
@@ -34,5 +36,7 @@ namespace lm {
 				return Lift(fun, args, typename IndicesBuilder<sizeof...(Args)>::type());
 			}
 		};
+
+
 	}
 }

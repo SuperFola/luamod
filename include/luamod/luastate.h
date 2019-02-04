@@ -96,7 +96,7 @@ namespace lm {
 		 */
 		template <typename T>
 		void SetGlobal(const char* globalName, const T& value) {
-			m_stack->Push(value);
+			detail::Push(m_state, value);
 			lua_setglobal(m_state, globalName);
 		}
 
@@ -110,7 +110,8 @@ namespace lm {
 		template <typename... RetType, typename... Args>
 		typename detail::ReturnProxy<sizeof...(RetType), RetType...>::type Call(const char* funcName, const Args&... args) {
 			lua_getglobal(m_state, funcName);
-			m_stack->Push(args...);
+			detail::Push(m_state, args...);
+			
 			lua_pcall(m_state, sizeof...(args), sizeof...(RetType), 0);
 
 			return detail::ReturnProxy<sizeof...(RetType), RetType...>::Pop(*m_stack);
