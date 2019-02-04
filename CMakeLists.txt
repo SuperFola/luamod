@@ -10,7 +10,7 @@ set(cdir ${CMAKE_CURRENT_LIST_DIR})
 file(GLOB source ${cdir}/src/*.cpp)
 file(GLOB headers ${cdir}/include/luamod/*.h)
 
-add_library(${PROJECT_NAME} ${source} ${headers})
+add_library(${PROJECT_NAME} STATIC ${source} ${headers})
 target_link_libraries(${PROJECT_NAME} liblua)
 
 include_directories(
