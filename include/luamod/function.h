@@ -8,6 +8,7 @@
 #include <luamod/stack.h>
 #include <functional>
 #include <memory>
+#include <typeindex>
 
 namespace lm {
 	class Stack;
@@ -79,9 +80,43 @@ namespace lm {
 				lua_setglobal(l, name);
 			}
 
+			template <typename... Types>
+			void Fill(std::vector<std::type_index>& vec)
+			{
+				vec.insert(vec.end(), { typeid(Types)... });
+			}
+
+			template <typename... Args>
+			struct Popper {
+				typedef std::tuple<Args...> Type;
+
+				template <typename T>
+				static std::tuple<T> DoWork(Stack& s, const int i) {
+					return std::make_tuple(s.Read<T>(i));
+				}
+
+				template <typename T1, typename T2, typename... Rest>
+				static std::tuple<T1, T2, Rest...> DoWork(Stack &s, const int i) {
+					std::tuple<T1> head = std::make_tuple(s.Read<T1>(i));
+					return std::tuple_cat(head, DoWork<T2, Rest...>(s, i+1));
+				}
+
+				static Type Apply(Stack& s) {
+					auto ret = DoWork<Args...>(s, 1);
+					lua_pop(s.GetState(), ((int)sizeof...(Args)));
+					return ret;
+				}
+			};
+
 			virtual int Call(lua_State* state) {
 				Stack closureStack(state);
-				std::tuple<Args...> args = std::make_tuple(closureStack.Pop<Args>()...);
+				
+				std::vector<std::type_index> ts;
+				Fill<Args...>(ts);
+				std::vector<std::string> names;
+				for (auto t1 : ts)names.push_back(t1.name());
+					
+				std::tuple<Args...> args = Popper<Args...>::Apply(closureStack);//std::make_tuple(closureStack.Pop<Args>()...);
 				ArgumentsProxy::Lift(m_func, args);
 				return 0;
 			}

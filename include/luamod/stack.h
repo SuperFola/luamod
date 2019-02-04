@@ -55,28 +55,51 @@ namespace lm {
 		}
 
 		template <>
-		const char* Read(int index) {
-			return lua_tostring(m_l, index);
+		const char* Read<const char*>(int index) {
+			const char* c = lua_tostring(m_l, index);
+			return c;
 		}
 
 		template <>
-		std::string Read(int index) {
+		std::string Read<std::string>(int index) {
 			const char* c = lua_tostring(m_l, index);
 			return std::string(c);
 		}
 
+		template <>
+		Array Read(int index) {
+			Array array(m_l);
+			array.FromStack(index);
+			array.Push();
+			return array;
+		}
+
+		template <>
+		Table Read(int index) {
+			Table table(m_l);
+			table.FromStack(index);
+			table.Push();
+			return table;
+		}
+
+		lua_State* GetState() {
+			return m_l;
+		}
+
 		template <typename T>
 		T Pop() {
+			const char* t32 = typeid(T).name();
+			const char* ttype = TypeOfTop();
+			
 			T top = Read<T>(-1);
 			lua_pop(m_l, 1);
 			return top;
 		}
 
-		template <>
-		Table Pop() {
-			Table table(m_l);
-			table.FromStackTop();
-			return table;
+		const char* TypeOfTop() {
+			int t = lua_type(m_l, -1);
+			const char* t2 = lua_typename(m_l, t);
+			return t2;
 		}
 
 		bool TopIsNil() {

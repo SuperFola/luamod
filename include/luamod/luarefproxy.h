@@ -23,6 +23,8 @@ namespace lm {
 		 */
 		void CreateFromStackTop();
 		
+		void CreateFromStack(int i);
+
 		/**
 		 * @brief Push the value of this reference to the Lua stack.
 		 */

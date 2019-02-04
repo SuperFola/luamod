@@ -31,6 +31,16 @@ void LuaRefProxy::CreateFromStackTop() {
 	m_inUse = true;
 }
 
+void LuaRefProxy::CreateFromStack(int i) {
+	assert(!m_inUse);
+
+	lua_pushvalue(m_state, i);
+	RefID ref = lua_ref(m_state, true);
+	m_refindex = std::shared_ptr<RefID>(new RefID{ ref }, detail::LuaRefProxyDeleter{ m_state });
+
+	m_inUse = true;
+}
+
 void LuaRefProxy::Push() {
 	lua_getref(m_state, GetRef());
 }
